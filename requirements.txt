@@ -1,0 +1,5 @@
+peewee~=3.17.0
+peewee-migrate==1.12.2
+pydantic-settings==2.0.3
+black==23.7.0
+pydantic==2.3.0
