@@ -1,0 +1,52 @@
+version: '3.5'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8085:8080
+    environment:
+      - LOG_LEVEL=DEBUG
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_DATABASE=db-name
+      - PG_USER=user_name
+      - PG_PASSWORD=password
+      - DEBUG_MODE=0
+    healthcheck:
+      test: curl --fail http://0.0.0.0:8085/healthcheck/ || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
+    networks:
+      - oh-parser-network
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_DB=db-name
+      - POSTGRES_USER=user_name
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432:5432
+    networks:
+      - oh-parser-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+networks:
+  oh-parser-network:
+    name: 'oh-parser-network'
